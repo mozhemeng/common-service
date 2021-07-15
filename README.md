@@ -1,6 +1,7 @@
-## Common Service
+# Common Service
 
-### Include
+## Include
+- api (gin)
 - authorization (jwt-go)
 - assess control (casbin)
 - sql (squirrel & sqlx)
@@ -9,35 +10,35 @@
 - scheduler task (gocron)
 - swagger api docs (swag)
 - config (viper)
-- log manage(logrus & lumberjack)
+- log (logrus & lumberjack)
 - command (cobra)
 
-### usage
-#### build
+## usage
+### build
 ```
 go build
 ```
 
-#### prepare
-including init tables & create root user
+### prepare
+including: create tables & create root role & create root user
 ```
 common_server prepare/init/setup
 ```
 
-#### run server
+### run server
 ```
 common_server server/service/api/run
 ```
 
-#### run scheduler
+### run scheduler
 ```
 common_server scheduler/task/job
 ```
 
-#### update swagger api doc
+### update swagger api doc
 ```
 swag init -g cmd/server.go
 ```
 
-### TODO
+## TODO
 - add test
