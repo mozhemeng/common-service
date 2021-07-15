@@ -1,0 +1,440 @@
+definitions:
+  app.PagedResult:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      msg:
+        type: string
+      pager:
+        $ref: '#/definitions/app.Pager'
+    type: object
+  app.Pager:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_count:
+        type: integer
+    type: object
+  app.Result:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        type: object
+      msg:
+        example: success
+        type: string
+    type: object
+  model.CasbinPolicy:
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+      role_name:
+        type: string
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      role_id:
+        type: integer
+      role_name:
+        type: string
+      status:
+        description: 0禁用, 1启用
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  service.CreateCasbinPolicyRequest:
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+      role_name:
+        type: string
+    required:
+    - method
+    - path
+    - role_name
+    type: object
+  service.CreateUserRequest:
+    properties:
+      nickname:
+        type: string
+      password:
+        type: string
+      re_password:
+        type: string
+      role_id:
+        type: integer
+      status:
+        type: integer
+      username:
+        type: string
+    required:
+    - nickname
+    - password
+    - re_password
+    - role_id
+    - status
+    - username
+    type: object
+  service.DeleteCasbinPolicyRequest:
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+      role_name:
+        type: string
+    required:
+    - method
+    - path
+    - role_name
+    type: object
+  service.FileInfo:
+    properties:
+      access_url:
+        type: string
+      name:
+        type: string
+    type: object
+  service.SignInRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  service.UpdateUserBodyRequest:
+    properties:
+      nickname:
+        type: string
+      role_id:
+        type: integer
+      status:
+        type: integer
+    required:
+    - nickname
+    - role_id
+    - status
+    type: object
+  v1.TokenResult:
+    properties:
+      access_token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 通用服务框架
+  title: 通用服务
+  version: "1.1"
+paths:
+  /api/v1/casbin/policies:
+    delete:
+      description: 删除权限规则
+      parameters:
+      - description: 删除权限规则
+        in: body
+        name: policy
+        required: true
+        schema:
+          $ref: '#/definitions/service.DeleteCasbinPolicyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 删除权限规则
+      tags:
+      - permission
+    get:
+      description: 查询权限规则列表
+      parameters:
+      - in: query
+        name: role_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.CasbinPolicy'
+                  type: array
+              type: object
+      security:
+      - JWT: []
+      summary: 查询权限规则列表
+      tags:
+      - permission
+    post:
+      consumes:
+      - application/json
+      description: 新建权限规则
+      parameters:
+      - description: 新建权限规则
+        in: body
+        name: policy
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateCasbinPolicyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 新建权限规则
+      tags:
+      - permission
+  /api/v1/casbin/policies/reload:
+    get:
+      description: 重新载入权限规则
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 重新载入权限规则
+      tags:
+      - permission
+  /api/v1/sign_in:
+    post:
+      consumes:
+      - application/json
+      description: 登录
+      parameters:
+      - description: 登录
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/service.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.TokenResult'
+              type: object
+      summary: 登录
+      tags:
+      - auth
+  /api/v1/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传文件
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 文件类型
+        in: formData
+        name: file_type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FileInfo'
+              type: object
+      security:
+      - JWT: []
+      summary: 上传文件
+      tags:
+      - upload
+  /api/v1/users:
+    get:
+      description: 查询用户列表
+      parameters:
+      - in: query
+        name: nickname
+        type: string
+      - in: query
+        name: role_id
+        type: integer
+      - in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.PagedResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.User'
+                  type: array
+              type: object
+      security:
+      - JWT: []
+      summary: 查询用户列表
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: 新建用户
+      parameters:
+      - description: 新建用户
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+      security:
+      - JWT: []
+      summary: 新建用户
+      tags:
+      - user
+  /api/v1/users/{user_id}:
+    delete:
+      description: 删除用户
+      parameters:
+      - description: 用户id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 删除用户
+      tags:
+      - user
+    get:
+      description: 查询单个用户
+      parameters:
+      - description: 用户id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+      security:
+      - JWT: []
+      summary: 查询单个用户
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: 更新用户
+      parameters:
+      - description: 用户id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: 更新用户
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateUserBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+      security:
+      - JWT: []
+      summary: 更新用户
+      tags:
+      - user
+securityDefinitions:
+  JWT:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

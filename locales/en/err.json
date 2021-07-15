@@ -1,0 +1,12 @@
+[
+  {
+    "locale": "en",
+    "key": "not found",
+    "trans": "not found"
+  },
+  {
+    "locale": "en",
+    "key": "user not exists",
+    "trans": "user not exists"
+  }
+]
