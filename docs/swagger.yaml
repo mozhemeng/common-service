@@ -39,6 +39,19 @@ definitions:
       role_name:
         type: string
     type: object
+  model.Role:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   model.User:
     properties:
       created_at:
@@ -71,6 +84,16 @@ definitions:
     - method
     - path
     - role_name
+    type: object
+  service.CreateRoleRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
     type: object
   service.CreateUserRequest:
     properties:
@@ -123,6 +146,13 @@ definitions:
     required:
     - password
     - username
+    type: object
+  service.UpdateRoleBodyRequest:
+    properties:
+      description:
+        type: string
+    required:
+    - description
     type: object
   service.UpdateUserBodyRequest:
     properties:
@@ -233,6 +263,114 @@ paths:
       summary: 重新载入权限规则
       tags:
       - permission
+  /api/v1/roles:
+    get:
+      description: 查询角色列表
+      parameters:
+      - in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.PagedResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Role'
+                  type: array
+              type: object
+      security:
+      - JWT: []
+      summary: 查询角色列表
+      tags:
+      - role
+    post:
+      consumes:
+      - application/json
+      description: 新建角色
+      parameters:
+      - description: 新建角色
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Role'
+              type: object
+      security:
+      - JWT: []
+      summary: 新建角色
+      tags:
+      - role
+  /api/v1/roles/{role_id}:
+    delete:
+      description: 删除角色
+      parameters:
+      - description: 角色id
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 删除角色
+      tags:
+      - role
+    put:
+      consumes:
+      - application/json
+      description: 更新角色
+      parameters:
+      - description: 角色id
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      - description: 更新角色
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateRoleBodyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Role'
+              type: object
+      security:
+      - JWT: []
+      summary: 更新角色
+      tags:
+      - role
   /api/v1/sign_in:
     post:
       consumes:

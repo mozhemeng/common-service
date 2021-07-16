@@ -10,7 +10,7 @@ import (
 )
 
 type GetUserByIDRequest struct {
-	ID uint64 `uri:"id" binding:"required"`
+	ID int64 `uri:"id" binding:"required"`
 }
 
 type CreateUserRequest struct {
@@ -19,27 +19,27 @@ type CreateUserRequest struct {
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
 	Nickname   string `json:"nickname" binding:"required"`
 	Status     uint   `json:"status" binding:"required,oneof=0 1"`
-	RoleId     uint64 `json:"role_id" binding:"required"`
+	RoleId     int64  `json:"role_id" binding:"required"`
 }
 
 type ListUserRequest struct {
 	Nickname string `form:"nickname" json:"nickname"`
-	Status   *uint   `form:"status" json:"status"`
-	RoleId   uint64 `form:"role_id" json:"role_id"`
+	Status   *uint  `form:"status" json:"status"`
+	RoleId   int64  `form:"role_id" json:"role_id"`
 }
 
 type UpdateUserUriRequest struct {
-	ID uint64 `uri:"id" binding:"required"`
+	ID int64 `uri:"id" binding:"required"`
 }
 
 type UpdateUserBodyRequest struct {
 	Nickname string `json:"nickname" binding:"required"`
 	Status   uint   `json:"status" binding:"required,oneof=0 1"`
-	RoleId   uint64 `json:"role_id" binding:"required"`
+	RoleId   int64  `json:"role_id" binding:"required"`
 }
 
 type DeleteUserRequest struct {
-	ID uint64 `uri:"id" binding:"required"`
+	ID int64 `uri:"id" binding:"required"`
 }
 
 func (svc *Service) GetUserByID(param *GetUserByIDRequest) (*model.User, error) {
@@ -111,7 +111,7 @@ func (svc *Service) ListUser(param *ListUserRequest, pager *app.Pager) ([]*model
 }
 
 func (svc *Service) UpdateUser(uriParam *UpdateUserUriRequest, bodyParam *UpdateUserBodyRequest) (*model.User, error) {
-	err := svc.dao.UpdateUser(uriParam.ID, bodyParam.Nickname, bodyParam.Status, bodyParam.RoleId)
+	_, err := svc.dao.UpdateUser(uriParam.ID, bodyParam.Nickname, bodyParam.Status, bodyParam.RoleId)
 	if err != nil {
 		return nil, errors.Wrap(err, "svc.dao.UpdateUser")
 	}
@@ -133,5 +133,9 @@ func (svc *Service) UpdateUser(uriParam *UpdateUserUriRequest, bodyParam *Update
 }
 
 func (svc *Service) DeleteUser(param *DeleteUserRequest) error {
-	return svc.dao.DeleteUser(param.ID)
+	_, err := svc.dao.DeleteUser(param.ID)
+	if err != nil {
+		return errors.Wrap(err, "dao.DeleteUser")
+	}
+	return nil
 }

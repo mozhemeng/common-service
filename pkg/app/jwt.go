@@ -11,12 +11,12 @@ import (
 )
 
 type Claims struct {
-	UserId   uint64 `json:"user_id"`
+	UserId   int64  `json:"user_id"`
 	RoleName string `json:"role_name"`
 	jwt.StandardClaims
 }
 
-func GenerateToken(userId uint64, roleName string) (string, error) {
+func GenerateToken(userId int64, roleName string) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(global.JWTSetting.Expire * time.Hour)
 	claims := Claims{

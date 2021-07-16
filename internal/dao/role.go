@@ -1,31 +1,77 @@
 package dao
 
 import (
-	"common_service/global"
+	"common_service/internal/model"
+	"common_service/pkg/app"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
-func (d *Dao) ExistsRoleById(id uint64) (bool, error) {
-	var exists bool
-	builder := sq.
-		Select("1").
-		Prefix("SELECT EXISTS (").
-		From("role").
-		Where(sq.Eq{"id": id}).
-		Suffix(")")
-	sql, args, err := builder.ToSql()
+var RoleTableName = "role"
+
+func (d *Dao) ExistsRoleById(id int64) (bool, error) {
+	return d.commonExists(RoleTableName, sq.Eq{"id": id})
+}
+
+func (d *Dao) ExistsRoleByName(name string) (bool, error) {
+	return d.commonExists(RoleTableName, sq.Eq{"name": name})
+}
+
+func (d *Dao) getRole(condition interface{}, args ...interface{}) (*model.Role, error) {
+	one := model.Role{}
+
+	builder := sq.Select("*").From(RoleTableName).Where(condition, args...)
+	err := d.getSQL(builder, &one)
 	if err != nil {
-		return false, errors.Wrap(err, "sql builder")
+		return nil, errors.Wrap(err, "getSQL")
 	}
-	global.Logger.WithFields(logrus.Fields{
-		"sql":  sql,
-		"args": args,
-	}).Debug("sql builder")
-	err = d.db.QueryRow(sql, args...).Scan(&exists)
+
+	return &one, nil
+}
+
+func (d *Dao) GetRoleById(id int64) (*model.Role, error) {
+	return d.getRole(sq.Eq{"id": id})
+}
+
+func (d *Dao) ListRole(name string, page, pageSize int) ([]*model.Role, error) {
+	many := make([]*model.Role, 0)
+
+	builder := sq.Select("*").From(RoleTableName)
+	if name != "" {
+		builder = builder.Where(sq.Like{"name": "%" + name + "%"})
+	}
+	pageOffSet := app.GetPageOffset(page, pageSize)
+	builder = builder.Offset(uint64(pageOffSet)).Limit(uint64(pageSize))
+
+	err := d.selectSQL(builder, &many)
 	if err != nil {
-		return false, errors.Wrap(err, "sql exec")
+		return nil, errors.Wrap(err, "selectSQL")
 	}
-	return exists, nil
+
+	return many, nil
+}
+
+func (d *Dao) CountRole(name string) (int, error) {
+	condition := sq.And{}
+	if name != "" {
+		condition = append(condition, sq.Like{"name": "%" + name + "%"})
+	}
+	return d.commonCount(RoleTableName, condition)
+}
+
+func (d *Dao) CreateRole(name, description string) (int64, error) {
+	columns := []string{"name", "description"}
+	values := []interface{}{name, description}
+	return d.commonCreate(RoleTableName, columns, values)
+}
+
+func (d *Dao) UpdateRole(id int64, description string) (int64, error) {
+	setMap := map[string]interface{}{
+		"description": description,
+	}
+	return d.commonUpdate(RoleTableName, setMap, sq.Eq{"id": id})
+}
+
+func (d *Dao) DeleteRole(id int64) (int64, error) {
+	return d.commonDelete(RoleTableName, sq.Eq{"id": id})
 }

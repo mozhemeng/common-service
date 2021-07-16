@@ -10,7 +10,8 @@ var (
 	UserNotActive     = NewApiError(4003, "user not active")
 	PasswordWrong     = NewApiError(4005, "password wrong")
 
-	RoleNotExists = NewApiError(4011, "role not exists")
+	RoleNotExists     = NewApiError(4011, "role not exists")
+	RoleAlreadyExists = NewApiError(4012, "role already exists")
 
 	TokenGenerate = NewApiError(4101, "generate token failed")
 	TokenInvalid  = NewApiError(4102, "token invalid")
