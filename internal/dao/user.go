@@ -71,30 +71,6 @@ func (d *Dao) ListUser(nickname string, status *uint, roleId int64, page, pageSi
 }
 
 func (d *Dao) CountUser(nickname string, status *uint, roleId int64) (int, error) {
-	//builder := sq.Select("count(*)").From("user")
-	//if nickname != "" {
-	//	builder = builder.Where(sq.Like{"user.nickname": "%" + nickname + "%"})
-	//}
-	//if status != nil {
-	//	builder = builder.Where(sq.Eq{"user.status": *status})
-	//}
-	//if roleId > 0 {
-	//	builder = builder.Where(sq.Eq{"user.role_id": roleId})
-	//}
-	//sql, args, err := builder.ToSql()
-	//if err != nil {
-	//	return 0, errors.Wrap(err, "sql builder")
-	//}
-	//global.Logger.WithFields(logrus.Fields{
-	//	"sql":  sql,
-	//	"args": args,
-	//}).Debug("sql builder")
-	//var count int
-	//err = d.db.Get(&count, sql, args...)
-	//if err != nil {
-	//	return 0, errors.Wrap(err, "sql exec")
-	//}
-	//return count, nil
 	condition := sq.And{}
 	if nickname != "" {
 		condition = append(condition, sq.Like{"user.nickname": "%" + nickname + "%"})
@@ -109,52 +85,12 @@ func (d *Dao) CountUser(nickname string, status *uint, roleId int64) (int, error
 }
 
 func (d *Dao) CreateUser(username, passwordHashed, nickname string, status uint, roleId int64) (int64, error) {
-	//builder := sq.
-	//	Insert("user").
-	//	Columns("username", "password_hashed", "nickname", "status", "role_id").
-	//	Values(username, passwordHashed, nickname, status, roleId)
-	//sql, args, err := builder.ToSql()
-	//if err != nil {
-	//	return 0, errors.Wrap(err, "sql builder")
-	//}
-	//global.Logger.WithFields(logrus.Fields{
-	//	"sql":  sql,
-	//	"args": args,
-	//}).Debug("sql builder")
-	//res, err := d.db.Exec(sql, args...)
-	//if err != nil {
-	//	return 0, errors.Wrap(err, "sql exec")
-	//}
-	//id, err := res.LastInsertId()
-	//if err != nil {
-	//	return 0, errors.Wrap(err, "sql exec")
-	//}
-	//return id, nil
 	columns := []string{"username", "password_hashed", "nickname", "status", "role_id"}
 	values := []interface{}{username, passwordHashed, nickname, status, roleId}
 	return d.commonCreate(UserTableName, columns, values)
 }
 
 func (d *Dao) UpdateUser(id int64, nickname string, status uint, roleId int64) (int64, error) {
-	//builder := sq.Update("user").
-	//	Where(sq.Eq{"id": id}).
-	//	Set("nickname", nickname).
-	//	Set("status", status).
-	//	Set("role_id", roleId)
-	//
-	//sql, args, err := builder.ToSql()
-	//if err != nil {
-	//	return errors.Wrap(err, "sql builder")
-	//}
-	//global.Logger.WithFields(logrus.Fields{
-	//	"sql":  sql,
-	//	"args": args,
-	//}).Debug("sql builder")
-	//_, err = d.db.Exec(sql, args...)
-	//if err != nil {
-	//	return errors.Wrap(err, "sql exec")
-	//}
-	//return nil
 	setMap := map[string]interface{}{
 		"nickname": nickname,
 		"status":   status,
@@ -164,20 +100,6 @@ func (d *Dao) UpdateUser(id int64, nickname string, status uint, roleId int64) (
 }
 
 func (d *Dao) DeleteUser(id int64) (int64, error) {
-	//builder := sq.Delete("user").Where(sq.Eq{"id": id})
-	//sql, args, err := builder.ToSql()
-	//if err != nil {
-	//	return errors.Wrap(err, "sql builder")
-	//}
-	//global.Logger.WithFields(logrus.Fields{
-	//	"sql":  sql,
-	//	"args": args,
-	//}).Debug("sql builder")
-	//_, err = d.db.Exec(sql, args...)
-	//if err != nil {
-	//	return errors.Wrap(err, "sql exec")
-	//}
-	//return nil
 	return d.commonDelete(UserTableName, sq.Eq{"id": id})
 }
 
