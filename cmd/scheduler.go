@@ -15,9 +15,9 @@ func runScheduler() {
 }
 
 var schedulerCmd = &cobra.Command{
-	Use: "scheduler",
+	Use:     "scheduler",
 	Aliases: []string{"task", "job"},
-	Short: "run background scheduler",
+	Short:   "run background scheduler",
 	Run: func(cmd *cobra.Command, args []string) {
 		runScheduler()
 	},

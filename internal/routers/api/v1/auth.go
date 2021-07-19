@@ -60,6 +60,6 @@ func (a Auth) SignIn(c *gin.Context) {
 		return
 	}
 
-	resp.Success(TokenResult{AccessToken:token})
+	resp.Success(TokenResult{AccessToken: token})
 
 }

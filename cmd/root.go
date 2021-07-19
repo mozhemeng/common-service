@@ -42,6 +42,6 @@ func init() {
 }
 
 var RootCmd = &cobra.Command{
-	Use: "common_service",
+	Use:   "common_service",
 	Short: "Common Service",
 }

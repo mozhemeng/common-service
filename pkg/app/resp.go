@@ -20,16 +20,16 @@ type Pager struct {
 }
 
 type Result struct {
-	Code int `json:"code" example:"200"`
-	Msg string `json:"msg" example:"success"`
+	Code int         `json:"code" example:"200"`
+	Msg  string      `json:"msg" example:"success"`
 	Data interface{} `json:"data"`
 }
 
 type PagedResult struct {
-	Code int `json:"code"`
-	Msg string `json:"msg"`
-	Pager Pager `json:"pager"`
-	Data interface{} `json:"data"`
+	Code  int         `json:"code"`
+	Msg   string      `json:"msg"`
+	Pager Pager       `json:"pager"`
+	Data  interface{} `json:"data"`
 }
 
 func NewResponse(ctx *gin.Context) *Response {

@@ -11,7 +11,7 @@ import (
 )
 
 func runInitTables() {
-	_ , err := sqlx.LoadFile(global.DB, global.AppSetting.InitTablesSqlPath)
+	_, err := sqlx.LoadFile(global.DB, global.AppSetting.InitTablesSqlPath)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "sqlx.LoadFile"))
 	}
@@ -36,9 +36,9 @@ func runCreateRootUser() {
 }
 
 var prepareCmd = &cobra.Command{
-	Use: "prepare",
+	Use:     "prepare",
 	Aliases: []string{"init", "setup"},
-	Short: "prepare for server",
+	Short:   "prepare for server",
 	Run: func(cmd *cobra.Command, args []string) {
 		runInitTables()
 		runCreateRootUser()

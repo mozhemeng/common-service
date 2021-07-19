@@ -54,11 +54,10 @@ func runServer() {
 	log.Println("Server exiting")
 }
 
-
 var serverCmd = &cobra.Command{
-	Use: "server",
+	Use:     "server",
 	Aliases: []string{"api", "service", "run"},
-	Short: "run api server",
+	Short:   "run api server",
 	Run: func(cmd *cobra.Command, args []string) {
 		runServer()
 	},

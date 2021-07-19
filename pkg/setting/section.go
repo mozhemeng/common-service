@@ -26,17 +26,17 @@ type AppSettingS struct {
 }
 
 type DatabaseSettingS struct {
-	DBType       string
-	Username     string
-	Password     string
-	Host         string
-	Port         string
-	DBName       string
-	Charset      string
-	ParseTime    bool
+	DBType          string
+	Username        string
+	Password        string
+	Host            string
+	Port            string
+	DBName          string
+	Charset         string
+	ParseTime       bool
 	MultiStatements bool
-	MaxIdleConns int
-	MaxOpenConns int
+	MaxIdleConns    int
+	MaxOpenConns    int
 }
 
 type JWTSettingS struct {
