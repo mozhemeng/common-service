@@ -35,6 +35,7 @@ func NewRouter() *gin.Engine {
 	{
 
 		apiV1.POST("/sign_in", auth.SignIn)
+		apiV1.POST("/refresh_token", auth.RefreshAccessToken)
 
 		authApi.GET("/users/:id", user.GetByID)
 		authApi.GET("/users", user.List)

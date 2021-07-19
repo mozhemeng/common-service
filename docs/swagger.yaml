@@ -137,6 +137,13 @@ definitions:
       name:
         type: string
     type: object
+  service.RefreshAccessTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   service.SignInRequest:
     properties:
       password:
@@ -170,6 +177,8 @@ definitions:
   v1.TokenResult:
     properties:
       access_token:
+        type: string
+      refresh_token:
         type: string
     type: object
 info:
@@ -263,6 +272,33 @@ paths:
       summary: 重新载入权限规则
       tags:
       - permission
+  /api/v1/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: 刷新access_token
+      parameters:
+      - description: 刷新access_token
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/service.RefreshAccessTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.TokenResult'
+              type: object
+      summary: 刷新access_token
+      tags:
+      - auth
   /api/v1/roles:
     get:
       description: 查询角色列表

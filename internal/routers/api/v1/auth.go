@@ -17,7 +17,8 @@ func NewAuth() Auth {
 }
 
 type TokenResult struct {
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // @Summary 登录
@@ -53,13 +54,47 @@ func (a Auth) SignIn(c *gin.Context) {
 		return
 	}
 
-	token, err := app.GenerateToken(user.ID, user.RoleName)
+	RefreshToken, AccessToken, err := svc.GenerateAllToken(user)
 	if err != nil {
-		global.Logger.Error(errors.Wrap(err, "app.GenerateToken"))
+		global.Logger.Error(errors.Wrap(err, "svc.GenerateAllToken"))
 		resp.ToError(errcode.TokenGenerate)
 		return
 	}
 
-	resp.Success(TokenResult{AccessToken: token})
+	resp.Success(TokenResult{
+		RefreshToken: RefreshToken,
+		AccessToken:  AccessToken,
+	})
+}
 
+// @Summary 刷新access_token
+// @Description 刷新access_token
+// @Tags auth
+// @Accept  json
+// @Produce json
+// @Param auth body service.RefreshAccessTokenRequest true "刷新access_token"
+// @Success 200 {object} app.Result{data=TokenResult}
+// @Router /api/v1/refresh_token [post]
+func (a Auth) RefreshAccessToken(c *gin.Context) {
+	resp := app.NewResponse(c)
+	param := service.RefreshAccessTokenRequest{}
+	if err := c.ShouldBindJSON(&param); err != nil {
+		resp.ToValidationError(err)
+		return
+	}
+	svc := service.New(c)
+
+	AccessToken, err := svc.RefreshAccessToken(&param)
+	switch errors.Cause(err) {
+	case nil:
+		resp.Success(TokenResult{
+			RefreshToken: param.RefreshToken,
+			AccessToken:  AccessToken,
+		})
+	case errcode.TokenInvalid:
+		resp.ToError(errcode.TokenInvalid)
+	default:
+		global.Logger.Error(errors.Wrap(err, "svc.RefreshAccessToken"))
+		resp.ToError(errcode.TokenGenerate)
+	}
 }

@@ -2,7 +2,6 @@ package app
 
 import (
 	"common_service/global"
-	"common_service/pkg/errcode"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -10,18 +9,32 @@ import (
 	"time"
 )
 
+type TokenType string
+
+const (
+	RefreshTokenType TokenType = "refresh"
+	AccessTokenType  TokenType = "access"
+)
+
 type Claims struct {
-	UserId   int64  `json:"user_id"`
-	RoleName string `json:"role_name"`
+	UserId   int64     `json:"user_id"`
+	RoleName string    `json:"role_name"`
+	Type     TokenType `json:"type"` // refresh or access
 	jwt.StandardClaims
 }
 
-func GenerateToken(userId int64, roleName string) (string, error) {
+func GenerateToken(userId int64, roleName string, tokenType TokenType) (string, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(global.JWTSetting.Expire * time.Hour)
+	var expireTime time.Time
+	if tokenType == RefreshTokenType {
+		expireTime = nowTime.Add(global.JWTSetting.RefreshExpire)
+	} else {
+		expireTime = nowTime.Add(global.JWTSetting.AccessExpire)
+	}
 	claims := Claims{
 		UserId:   userId,
 		RoleName: roleName,
+		Type:     tokenType,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    global.JWTSetting.Issuer,
@@ -32,20 +45,20 @@ func GenerateToken(userId int64, roleName string) (string, error) {
 	return token, err
 }
 
-func VerifyToken(token string) (*Claims, error) {
+func VerifyToken(token string, tokenType TokenType) (*Claims, error) {
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(global.JWTSetting.Secret), nil
 	})
 	if err != nil {
-		return nil, errcode.TokenInvalid.WithDetails(errors.Wrap(err, "jwt.ParseWithClaims").Error())
+		return nil, errors.Wrap(err, "jwt.ParseWithClaims")
 	}
-	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
+	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid && claims.Type == tokenType {
 		return claims, nil
 	}
-	return nil, errcode.TokenInvalid
+	return nil, errors.New("token invalid")
 }
 
-func ExtractToken(c *gin.Context) string {
+func ExtractToken(c *gin.Context) (string, error) {
 	var token string
 	if s, exist := c.GetQuery("token"); exist {
 		token = s
@@ -56,5 +69,9 @@ func ExtractToken(c *gin.Context) string {
 			token = a[1]
 		}
 	}
-	return token
+	if token == "" {
+		return token, errors.New("no token found")
+	} else {
+		return token, nil
+	}
 }

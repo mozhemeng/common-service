@@ -42,7 +42,8 @@ Database:
 JWT:
   Secret: thisissecret
   Issuer: commmon-service
-  Expire: 168   # hours
+  RefreshExpire: 720   # hours
+  AccessExpire: 168   # hours
 Casbin:
   ModelFilePath: configs/rbac_model.conf
 Redis:

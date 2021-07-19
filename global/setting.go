@@ -41,7 +41,8 @@ func SetupSetting() error {
 	if err != nil {
 		return err
 	}
-	JWTSetting.Expire *= time.Second
+	JWTSetting.RefreshExpire *= time.Hour
+	JWTSetting.AccessExpire *= time.Hour
 
 	err = s.ReadSection("Casbin", &CasbinSetting)
 	if err != nil {

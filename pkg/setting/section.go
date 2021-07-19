@@ -40,9 +40,10 @@ type DatabaseSettingS struct {
 }
 
 type JWTSettingS struct {
-	Secret string
-	Issuer string
-	Expire time.Duration
+	Secret        string
+	Issuer        string
+	RefreshExpire time.Duration
+	AccessExpire  time.Duration
 }
 
 type CasbinSettingS struct {
