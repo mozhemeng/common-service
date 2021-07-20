@@ -272,6 +272,21 @@ paths:
       summary: 重新载入权限规则
       tags:
       - permission
+  /api/v1/example/rate-limit:
+    get:
+      description: 用户访问速率限制
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 用户访问速率限制
+      tags:
+      - example
   /api/v1/refresh_token:
     post:
       consumes:

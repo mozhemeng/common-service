@@ -18,6 +18,8 @@ var (
 
 	PermissionDeny = NewApiError(4300, "permission deny")
 
+	RateLimitExceeded = NewApiError(4400, "rate limit exceeded")
+
 	UploadFailed          = NewApiError(4500, "file upload failed")
 	UploadExtNotSupported = NewApiError(4501, "file suffix is not supported")
 	UploadExcessMaxSize   = NewApiError(4502, "file size exceeded maximum limit")

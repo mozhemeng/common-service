@@ -20,7 +20,7 @@ func New(ctx *gin.Context) Service {
 }
 
 func (svc *Service) GetCurrentUser() *model.User {
-	claims := svc.ctx.MustGet("claims").(*app.Claims)
+	claims := app.GetClaims(svc.ctx)
 
 	user, err := svc.dao.GetUserById(claims.UserId)
 	if err != nil {

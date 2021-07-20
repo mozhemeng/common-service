@@ -29,7 +29,7 @@ func runCreateRootUser() {
 		log.Fatal(errors.Wrap(err, "app.HashPassword"))
 	}
 
-	_, err = d.CreateUser("admin", passwordHashed, "admin", 1, 1)
+	_, err = d.CreateUser(global.AppSetting.RootUsername, passwordHashed, global.AppSetting.RootUsername, 1, 1)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "dao.CreateUser"))
 	}

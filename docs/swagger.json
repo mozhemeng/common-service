@@ -150,6 +150,31 @@
                 }
             }
         },
+        "/api/v1/example/rate-limit": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "用户访问速率限制",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "用户访问速率限制",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/app.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/refresh_token": {
             "post": {
                 "description": "刷新access_token",

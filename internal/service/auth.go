@@ -35,11 +35,11 @@ func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 }
 
 func (svc *Service) GenerateAllToken(user *model.User) (string, string, error) {
-	RefreshToken, err := app.GenerateToken(user.ID, user.RoleName, app.RefreshTokenType)
+	RefreshToken, err := app.GenerateToken(user.ID, user.Username, user.RoleName, app.RefreshTokenType)
 	if err != nil {
 		return "", "", errors.Wrap(err, "app.GenerateToken(refresh)")
 	}
-	AccessToken, err := app.GenerateToken(user.ID, user.RoleName, app.AccessTokenType)
+	AccessToken, err := app.GenerateToken(user.ID, user.Username, user.RoleName, app.AccessTokenType)
 	if err != nil {
 		return "", "", errors.Wrap(err, "app.GenerateToken(access)")
 	}
@@ -53,5 +53,5 @@ func (svc *Service) RefreshAccessToken(param *RefreshAccessTokenRequest) (string
 		return "", errors.Wrap(err, "app.VerifyToken")
 	}
 
-	return app.GenerateToken(claims.UserId, claims.RoleName, app.AccessTokenType)
+	return app.GenerateToken(claims.UserId, claims.Username, claims.RoleName, app.AccessTokenType)
 }

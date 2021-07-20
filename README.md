@@ -9,9 +9,14 @@
 - i18n (universal-translator)
 - scheduler task (gocron)
 - swagger api docs (swag)
+- rate limit (limiter)
 - config (viper)
 - log (logrus & lumberjack)
 - command (cobra)
+
+## needed
+- redis 
+- mysql
 
 ## usage
 ### build

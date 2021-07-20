@@ -10,6 +10,7 @@ type ServerSettingS struct {
 }
 
 type AppSettingS struct {
+	RootUsername         string
 	RootPassword         string
 	LogSavePath          string
 	LogFileName          string

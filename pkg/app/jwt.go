@@ -18,12 +18,13 @@ const (
 
 type Claims struct {
 	UserId   int64     `json:"user_id"`
+	Username string    `json:"username"`
 	RoleName string    `json:"role_name"`
 	Type     TokenType `json:"type"` // refresh or access
 	jwt.StandardClaims
 }
 
-func GenerateToken(userId int64, roleName string, tokenType TokenType) (string, error) {
+func GenerateToken(userId int64, username string, roleName string, tokenType TokenType) (string, error) {
 	nowTime := time.Now()
 	var expireTime time.Time
 	if tokenType == RefreshTokenType {
@@ -33,6 +34,7 @@ func GenerateToken(userId int64, roleName string, tokenType TokenType) (string, 
 	}
 	claims := Claims{
 		UserId:   userId,
+		Username: username,
 		RoleName: roleName,
 		Type:     tokenType,
 		StandardClaims: jwt.StandardClaims{

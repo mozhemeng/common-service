@@ -27,6 +27,7 @@ func NewRouter() *gin.Engine {
 	role := v1.NewRole()
 	casbinPolicy := v1.NewCasbinPolicy()
 	upload := v1.NewUpload()
+	example := v1.NewExample()
 
 	apiV1 := r.Group("/api/v1")
 	authApi := apiV1.Group("")
@@ -54,6 +55,10 @@ func NewRouter() *gin.Engine {
 		authApi.GET("/casbin/policies/reload", casbinPolicy.ReLoad)
 
 		authApi.POST("/upload", upload.UploadFile)
+
+		// example for UserRateLimiter middleware
+		authApi.Use(middleware.UserRateLimiter("2-M")).GET("/example/rate-limit", example.UserRateLimit)
+
 	}
 
 	return r

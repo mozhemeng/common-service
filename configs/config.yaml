@@ -4,6 +4,8 @@ Server:
   ReadTimeout: 60
   WriteTimeout: 60
 App:
+  # root user
+  RootUsername: admin
   RootPassword: 123456
   # 日志
   LogSavePath: storage/logs
