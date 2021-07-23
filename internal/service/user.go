@@ -2,10 +2,10 @@ package service
 
 import (
 	"common_service/global"
+	"common_service/internal/dao"
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
-	"database/sql"
 	"github.com/go-redis/cache/v8"
 	"github.com/pkg/errors"
 )
@@ -54,7 +54,7 @@ func (svc *Service) GetUserByID(param *GetUserByIDRequest) (*model.User, error) 
 
 	u, err = svc.dao.GetUserById(param.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if dao.IsNoRowFound(err) {
 			return nil, errcode.UserNotExists
 		}
 		return nil, errors.Wrap(err, "svc.dao.GetUserByID")

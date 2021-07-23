@@ -1,10 +1,10 @@
 package service
 
 import (
+	"common_service/internal/dao"
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
-	"database/sql"
 	"github.com/pkg/errors"
 )
 
@@ -20,7 +20,7 @@ type RefreshAccessTokenRequest struct {
 func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 	user, err := svc.dao.GetUserByUsername(param.Username)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if dao.IsNoRowFound(err) {
 			return nil, errcode.UserNotExists
 		}
 		return nil, errors.Wrap(err, "svc.dao.GetUserByUsername")

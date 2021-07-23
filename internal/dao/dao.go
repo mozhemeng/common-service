@@ -34,6 +34,10 @@ func New(db *sqlx.DB, rdb *redis.Client, cache *cache.Cache) *Dao {
 }
 
 // sql
+func IsNoRowFound(err error) bool {
+	return errors.Cause(err) == sql.ErrNoRows
+}
+
 func logSql(s time.Time, query string, args []interface{}) {
 	global.Logger.WithFields(logrus.Fields{
 		"sql":      query,
