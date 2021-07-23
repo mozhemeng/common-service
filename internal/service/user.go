@@ -5,6 +5,7 @@ import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
+	"database/sql"
 	"github.com/go-redis/cache/v8"
 	"github.com/pkg/errors"
 )
@@ -18,7 +19,7 @@ type CreateUserRequest struct {
 	Password   string `json:"password" binding:"required"`
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
 	Nickname   string `json:"nickname" binding:"required"`
-	Status     uint   `json:"status" binding:"required,oneof=0 1"`
+	Status     *uint  `json:"status" binding:"required,oneof=0 1"`
 	RoleId     int64  `json:"role_id" binding:"required"`
 }
 
@@ -34,7 +35,7 @@ type UpdateUserUriRequest struct {
 
 type UpdateUserBodyRequest struct {
 	Nickname string `json:"nickname" binding:"required"`
-	Status   uint   `json:"status" binding:"required,oneof=0 1"`
+	Status   *uint  `json:"status" binding:"required,oneof=0 1"`
 	RoleId   int64  `json:"role_id" binding:"required"`
 }
 
@@ -44,23 +45,27 @@ type DeleteUserRequest struct {
 
 func (svc *Service) GetUserByID(param *GetUserByIDRequest) (*model.User, error) {
 	u, err := svc.dao.GetUserInCache(param.ID)
-	switch err {
-	case nil:
-		return u, err
-	case cache.ErrCacheMiss:
-		u, err := svc.dao.GetUserById(param.ID)
-		if err != nil {
-			return nil, errors.Wrap(err, "svc.dao.GetUserByID")
-		}
-		err = svc.dao.SetUserInCache(u, 0)
-		if err != nil {
-			global.Logger.Error(errors.Wrap(err, "svc.dao.SetUserInCache"))
-		}
+	if err == nil {
 		return u, nil
-	default:
-		return nil, errors.Wrap(err, "svc.dao.GetUserInCache")
+	}
+	if err != cache.ErrCacheMiss {
+		global.Logger.Error(errors.Wrap(err, "svc.dao.GetUserInCache"))
 	}
 
+	u, err = svc.dao.GetUserById(param.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errcode.UserNotExists
+		}
+		return nil, errors.Wrap(err, "svc.dao.GetUserByID")
+	}
+
+	err = svc.dao.SetUserInCache(u, 0)
+	if err != nil {
+		global.Logger.Error(errors.Wrap(err, "svc.dao.SetUserInCache"))
+	}
+
+	return u, nil
 }
 
 func (svc *Service) CreateUser(param *CreateUserRequest) (*model.User, error) {
@@ -84,7 +89,7 @@ func (svc *Service) CreateUser(param *CreateUserRequest) (*model.User, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "app.HashPassword")
 	}
-	newID, err := svc.dao.CreateUser(param.Username, passwordHashed, param.Nickname, param.Status, param.RoleId)
+	newID, err := svc.dao.CreateUser(param.Username, passwordHashed, param.Nickname, *param.Status, param.RoleId)
 	if err != nil {
 		return nil, errors.Wrap(err, "svc.dao.CreateUser")
 	}
@@ -92,6 +97,11 @@ func (svc *Service) CreateUser(param *CreateUserRequest) (*model.User, error) {
 	u, err := svc.dao.GetUserById(newID)
 	if err != nil {
 		return nil, errors.Wrap(err, "svc.dao.GetUserById")
+	}
+
+	err = svc.dao.SetUserInCache(u, 0)
+	if err != nil {
+		global.Logger.Error(errors.Wrap(err, "svc.dao.SetUserInCache"))
 	}
 
 	return u, nil
@@ -111,11 +121,6 @@ func (svc *Service) ListUser(param *ListUserRequest, pager *app.Pager) ([]*model
 }
 
 func (svc *Service) UpdateUser(uriParam *UpdateUserUriRequest, bodyParam *UpdateUserBodyRequest) (*model.User, error) {
-	_, err := svc.dao.UpdateUser(uriParam.ID, bodyParam.Nickname, bodyParam.Status, bodyParam.RoleId)
-	if err != nil {
-		return nil, errors.Wrap(err, "svc.dao.UpdateUser")
-	}
-
 	roleExists, err := svc.dao.ExistsRoleById(bodyParam.RoleId)
 	if err != nil {
 		return nil, errors.Wrap(err, "svc.dao.ExistsRoleById")
@@ -124,9 +129,19 @@ func (svc *Service) UpdateUser(uriParam *UpdateUserUriRequest, bodyParam *Update
 		return nil, errcode.RoleNotExists
 	}
 
+	_, err = svc.dao.UpdateUser(uriParam.ID, bodyParam.Nickname, *bodyParam.Status, bodyParam.RoleId)
+	if err != nil {
+		return nil, errors.Wrap(err, "svc.dao.UpdateUser")
+	}
+
 	u, err := svc.dao.GetUserById(uriParam.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "svc.dao.GetUserById")
+	}
+
+	err = svc.dao.SetUserInCache(u, 0)
+	if err != nil {
+		global.Logger.Error(errors.Wrap(err, "svc.dao.SetUserInCache"))
 	}
 
 	return u, nil
@@ -136,6 +151,10 @@ func (svc *Service) DeleteUser(param *DeleteUserRequest) error {
 	_, err := svc.dao.DeleteUser(param.ID)
 	if err != nil {
 		return errors.Wrap(err, "dao.DeleteUser")
+	}
+	err = svc.dao.DeleteUserInCache(param.ID)
+	if err != nil {
+		global.Logger.Error(errors.Wrap(err, "svc.dao.DeleteUserInCache"))
 	}
 	return nil
 }

@@ -23,7 +23,10 @@
 ```
 go build
 ```
-
+### create database
+```
+CREATE DATABASE IF NOT EXISTS `cose` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
+```
 ### prepare
 including: create tables & create root role & create root user
 ```

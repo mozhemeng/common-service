@@ -1,6 +1,6 @@
 package model
 
-type CasbinPolicy struct {
+type PermPolicy struct {
 	PType    string `json:"-" db:"p_type"`
 	RoleName string `json:"role_name" db:"v0"`
 	Path     string `json:"path" db:"v1"`

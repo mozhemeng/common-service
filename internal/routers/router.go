@@ -25,7 +25,7 @@ func NewRouter() *gin.Engine {
 	auth := v1.NewAuth()
 	user := v1.NewUser()
 	role := v1.NewRole()
-	casbinPolicy := v1.NewCasbinPolicy()
+	permPolicy := v1.NewPermPolicy()
 	upload := v1.NewUpload()
 	example := v1.NewExample()
 
@@ -49,10 +49,10 @@ func NewRouter() *gin.Engine {
 		authApi.PUT("/roles/:id", role.Update)
 		authApi.DELETE("/roles/:id", role.Delete)
 
-		authApi.GET("/casbin/policies", casbinPolicy.List)
-		authApi.POST("/casbin/policies", casbinPolicy.Create)
-		authApi.DELETE("/casbin/policies", casbinPolicy.Delete)
-		authApi.GET("/casbin/policies/reload", casbinPolicy.ReLoad)
+		authApi.GET("/perm/policies", permPolicy.List)
+		authApi.POST("/perm/policies", permPolicy.Create)
+		authApi.DELETE("/perm/policies", permPolicy.Delete)
+		authApi.GET("/perm/policies/reload", permPolicy.ReLoad)
 
 		authApi.POST("/upload", upload.UploadFile)
 

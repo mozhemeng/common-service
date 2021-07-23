@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"common_service/global"
 	"common_service/internal/service"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
@@ -42,17 +41,10 @@ func (u Upload) UploadFile(c *gin.Context) {
 
 	svc := service.New(c)
 	fileInfo, err := svc.UploadFile(upload.FileType(fileType), fileHeader)
-	switch errors.Cause(err) {
-	case nil:
-		resp.Success(fileInfo)
-	case errcode.UploadExtNotSupported:
-		fallthrough
-	case errcode.UploadExcessMaxSize:
-		fallthrough
-	case errcode.UploadFailed:
-		resp.ToError(err.(*errcode.ApiError))
-	default:
-		global.Logger.Error(errors.Wrap(err, "svc.UploadFile"))
-		resp.ToError(errcode.InternalError)
+	if err != nil {
+		resp.ToError(err)
+		return
 	}
+
+	resp.Success(fileInfo)
 }

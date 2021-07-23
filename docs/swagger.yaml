@@ -30,7 +30,7 @@ definitions:
         example: success
         type: string
     type: object
-  model.CasbinPolicy:
+  model.PermPolicy:
     properties:
       method:
         type: string
@@ -72,7 +72,7 @@ definitions:
       username:
         type: string
     type: object
-  service.CreateCasbinPolicyRequest:
+  service.CreatePermPolicyRequest:
     properties:
       method:
         type: string
@@ -117,7 +117,7 @@ definitions:
     - status
     - username
     type: object
-  service.DeleteCasbinPolicyRequest:
+  service.DeletePermPolicyRequest:
     properties:
       method:
         type: string
@@ -187,7 +187,22 @@ info:
   title: 通用服务
   version: "1.1"
 paths:
-  /api/v1/casbin/policies:
+  /api/v1/example/rate-limit:
+    get:
+      description: 用户访问速率限制
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/app.Result'
+      security:
+      - JWT: []
+      summary: 用户访问速率限制
+      tags:
+      - example
+  /api/v1/perm/policies:
     delete:
       description: 删除权限规则
       parameters:
@@ -196,7 +211,7 @@ paths:
         name: policy
         required: true
         schema:
-          $ref: '#/definitions/service.DeleteCasbinPolicyRequest'
+          $ref: '#/definitions/service.DeletePermPolicyRequest'
       produces:
       - application/json
       responses:
@@ -226,7 +241,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/model.CasbinPolicy'
+                    $ref: '#/definitions/model.PermPolicy'
                   type: array
               type: object
       security:
@@ -244,7 +259,7 @@ paths:
         name: policy
         required: true
         schema:
-          $ref: '#/definitions/service.CreateCasbinPolicyRequest'
+          $ref: '#/definitions/service.CreatePermPolicyRequest'
       produces:
       - application/json
       responses:
@@ -257,7 +272,7 @@ paths:
       summary: 新建权限规则
       tags:
       - permission
-  /api/v1/casbin/policies/reload:
+  /api/v1/perm/policies/reload:
     get:
       description: 重新载入权限规则
       produces:
@@ -272,21 +287,6 @@ paths:
       summary: 重新载入权限规则
       tags:
       - permission
-  /api/v1/example/rate-limit:
-    get:
-      description: 用户访问速率限制
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/app.Result'
-      security:
-      - JWT: []
-      summary: 用户访问速率限制
-      tags:
-      - example
   /api/v1/refresh_token:
     post:
       consumes:

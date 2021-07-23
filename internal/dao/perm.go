@@ -7,14 +7,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-var CasbinTableName = "casbin_rule"
-
-func (d *Dao) ListCasbinPolicy(roleName string, page, pageSize int) ([]*model.CasbinPolicy, error) {
-	many := make([]*model.CasbinPolicy, 0)
+func (d *Dao) ListPermPolicy(roleName string, page, pageSize int) ([]*model.PermPolicy, error) {
+	many := make([]*model.PermPolicy, 0)
 
 	builder := sq.
 		Select("v0, v1, v2").
-		From(CasbinTableName)
+		From(PermTableName)
 	condition := sq.And{}
 	if roleName != "" {
 		condition = append(condition, sq.Eq{"v0": roleName})
@@ -23,18 +21,18 @@ func (d *Dao) ListCasbinPolicy(roleName string, page, pageSize int) ([]*model.Ca
 	pageOffSet := app.GetPageOffset(page, pageSize)
 	builder = builder.Offset(uint64(pageOffSet)).Limit(uint64(pageSize))
 
-	err := d.selectSQL(builder, &many)
+	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSQL")
+		return nil, errors.Wrap(err, "selectSql")
 	}
 
 	return many, nil
 }
 
-func (d *Dao) CountCasbinPolicy(roleName string) (int, error) {
+func (d *Dao) CountPermPolicy(roleName string) (int, error) {
 	condition := sq.And{}
 	if roleName != "" {
 		condition = append(condition, sq.Eq{"v0": roleName})
 	}
-	return d.commonCount(CasbinTableName, condition)
+	return d.commonCount(PermTableName, condition)
 }

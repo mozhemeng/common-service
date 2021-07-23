@@ -4,6 +4,7 @@ import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
+	"database/sql"
 	"github.com/pkg/errors"
 )
 
@@ -19,6 +20,9 @@ type RefreshAccessTokenRequest struct {
 func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 	user, err := svc.dao.GetUserByUsername(param.Username)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errcode.UserNotExists
+		}
 		return nil, errors.Wrap(err, "svc.dao.GetUserByUsername")
 	}
 
@@ -37,11 +41,11 @@ func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 func (svc *Service) GenerateAllToken(user *model.User) (string, string, error) {
 	RefreshToken, err := app.GenerateToken(user.ID, user.Username, user.RoleName, app.RefreshTokenType)
 	if err != nil {
-		return "", "", errors.Wrap(err, "app.GenerateToken(refresh)")
+		return "", "", errcode.TokenGenerate.WithDetails(err.Error())
 	}
 	AccessToken, err := app.GenerateToken(user.ID, user.Username, user.RoleName, app.AccessTokenType)
 	if err != nil {
-		return "", "", errors.Wrap(err, "app.GenerateToken(access)")
+		return "", "", errcode.TokenGenerate.WithDetails(err.Error())
 	}
 
 	return RefreshToken, AccessToken, nil
@@ -50,8 +54,12 @@ func (svc *Service) GenerateAllToken(user *model.User) (string, string, error) {
 func (svc *Service) RefreshAccessToken(param *RefreshAccessTokenRequest) (string, error) {
 	claims, err := app.VerifyToken(param.RefreshToken, app.RefreshTokenType)
 	if err != nil {
-		return "", errors.Wrap(err, "app.VerifyToken")
+		return "", errcode.TokenInvalid.WithDetails(err.Error())
 	}
 
-	return app.GenerateToken(claims.UserId, claims.Username, claims.RoleName, app.AccessTokenType)
+	token, err := app.GenerateToken(claims.UserId, claims.Username, claims.RoleName, app.AccessTokenType)
+	if err != nil {
+		return "", errcode.TokenGenerate.WithDetails(err.Error())
+	}
+	return token, nil
 }

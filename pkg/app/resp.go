@@ -5,7 +5,6 @@ import (
 	"common_service/pkg/errcode"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
 	"net/http"
 )
 
@@ -66,14 +65,24 @@ func (r *Response) SuccessList(data interface{}, totalCount int) {
 	r.Ctx.JSON(http.StatusOK, resp)
 }
 
-func (r *Response) ToError(err *errcode.ApiError) {
+func (r *Response) toApiError(err *errcode.ApiError) {
 	r.Ctx.AbortWithStatusJSON(err.StatusCode(), err.JSON())
 }
 
-func (r *Response) ToValidationError(err error) {
-	if errs, ok := err.(validator.ValidationErrors); ok {
-		r.ToError(errcode.InvalidParams.WithValidErrs(errs.Translate(global.Trans)))
-	} else {
-		r.ToError(errcode.InternalError.WithDetails(errors.Wrap(err, "Validation").Error()))
+func (r *Response) ToError(err error) {
+	switch err.(type) {
+	case *errcode.ApiError:
+		r.toApiError(err.(*errcode.ApiError))
+	case validator.ValidationErrors:
+		r.toApiError(errcode.InvalidParams.WithValidErrs(err.(validator.ValidationErrors).Translate(global.Trans)))
+	default:
+		global.Logger.Error(err)
+		if global.ServerSetting.RunMode == "debug" {
+			r.toApiError(errcode.InternalError.WithDetails(err.Error()))
+		} else {
+			r.toApiError(errcode.InternalError)
+		}
+
 	}
+
 }

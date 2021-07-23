@@ -22,7 +22,7 @@ func CasbinHandler() gin.HandlerFunc {
 			"sub": sub,
 			"obj": obj,
 			"act": act,
-		}).Debug("casbin policy")
+		}).Debug("perm policy")
 
 		pass, err := global.Enforcer.Enforce(sub, obj, act)
 		if err != nil {

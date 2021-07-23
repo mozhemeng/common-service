@@ -12,6 +12,7 @@ var (
 
 	RoleNotExists     = NewApiError(4011, "role not exists")
 	RoleAlreadyExists = NewApiError(4012, "role already exists")
+	HaveRelativeUser  = NewApiError(4012, "role have relative user")
 
 	TokenGenerate = NewApiError(4101, "generate token failed")
 	TokenInvalid  = NewApiError(4102, "token invalid")

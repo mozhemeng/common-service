@@ -1,13 +1,9 @@
 package v1
 
 import (
-	"common_service/global"
 	"common_service/internal/service"
 	"common_service/pkg/app"
-	"common_service/pkg/errcode"
-	"database/sql"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type Auth struct{}
@@ -33,31 +29,20 @@ func (a Auth) SignIn(c *gin.Context) {
 	resp := app.NewResponse(c)
 	param := service.SignInRequest{}
 	if err := c.ShouldBindJSON(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	svc := service.New(c)
 	user, err := svc.CheckAuth(&param)
 	if err != nil {
-		switch errors.Cause(err) {
-		case sql.ErrNoRows:
-			resp.ToError(errcode.UserNotExists)
-		case errcode.PasswordWrong:
-			resp.ToError(errcode.PasswordWrong)
-		case errcode.UserNotActive:
-			resp.ToError(errcode.UserNotActive)
-		default:
-			global.Logger.Error(errors.Wrap(err, "svc.CheckAuth"))
-			resp.ToError(errcode.InternalError)
-		}
+		resp.ToError(err)
 		return
 	}
 
 	RefreshToken, AccessToken, err := svc.GenerateAllToken(user)
 	if err != nil {
-		global.Logger.Error(errors.Wrap(err, "svc.GenerateAllToken"))
-		resp.ToError(errcode.TokenGenerate)
+		resp.ToError(err)
 		return
 	}
 
@@ -79,22 +64,19 @@ func (a Auth) RefreshAccessToken(c *gin.Context) {
 	resp := app.NewResponse(c)
 	param := service.RefreshAccessTokenRequest{}
 	if err := c.ShouldBindJSON(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
-	svc := service.New(c)
 
+	svc := service.New(c)
 	AccessToken, err := svc.RefreshAccessToken(&param)
-	switch errors.Cause(err) {
-	case nil:
-		resp.Success(TokenResult{
-			RefreshToken: param.RefreshToken,
-			AccessToken:  AccessToken,
-		})
-	case errcode.TokenInvalid:
-		resp.ToError(errcode.TokenInvalid)
-	default:
-		global.Logger.Error(errors.Wrap(err, "svc.RefreshAccessToken"))
-		resp.ToError(errcode.TokenGenerate)
+	if err != nil {
+		resp.ToError(err)
+		return
 	}
+
+	resp.Success(TokenResult{
+		RefreshToken: param.RefreshToken,
+		AccessToken:  AccessToken,
+	})
 }

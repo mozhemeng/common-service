@@ -3,18 +3,18 @@ package dao
 import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
-	"context"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/go-redis/cache/v8"
 	"github.com/pkg/errors"
 	"time"
 )
 
-var UserTableName = "user"
-
 func (d *Dao) ExistsUserByUsername(username string) (bool, error) {
 	return d.commonExists(UserTableName, sq.Eq{"username": username})
+}
+
+func (d *Dao) ExistsUserByRoleId(roleId int64) (bool, error) {
+	return d.commonExists(UserTableName, sq.Eq{"role_id": roleId})
 }
 
 func (d *Dao) getUser(condition interface{}, args ...interface{}) (*model.User, error) {
@@ -25,7 +25,7 @@ func (d *Dao) getUser(condition interface{}, args ...interface{}) (*model.User, 
 		From(UserTableName).
 		Join("role ON user.role_id=role.id").
 		Where(condition, args...)
-	err := d.getSQL(builder, &one)
+	err := d.getSql(builder, &one)
 	if err != nil {
 		return nil, errors.Wrap(err, "getSQL")
 	}
@@ -62,9 +62,35 @@ func (d *Dao) ListUser(nickname string, status *uint, roleId int64, page, pageSi
 	pageOffSet := app.GetPageOffset(page, pageSize)
 	builder = builder.Offset(uint64(pageOffSet)).Limit(uint64(pageSize))
 
-	err := d.selectSQL(builder, &many)
+	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSQL")
+		return nil, errors.Wrap(err, "selectSql")
+	}
+
+	return many, nil
+}
+
+func (d *Dao) ListUserId(nickname string, status *uint, roleId int64) ([]int64, error) {
+	many := make([]int64, 0)
+
+	builder := sq.
+		Select("id").
+		From(UserTableName)
+	condition := sq.And{}
+	if nickname != "" {
+		condition = append(condition, sq.Like{"user.nickname": "%" + nickname + "%"})
+	}
+	if status != nil {
+		condition = append(condition, sq.Eq{"user.status": *status})
+	}
+	if roleId > 0 {
+		condition = append(condition, sq.Eq{"user.role_id": roleId})
+	}
+	builder = builder.Where(condition)
+
+	err := d.selectSql(builder, &many)
+	if err != nil {
+		return nil, errors.Wrap(err, "selectSql")
 	}
 
 	return many, nil
@@ -106,7 +132,7 @@ func (d *Dao) DeleteUser(id int64) (int64, error) {
 func (d *Dao) GetUserInCache(id int64) (*model.User, error) {
 	u := model.User{}
 	key := fmt.Sprintf("user:%d", id)
-	err := d.cache.Get(context.Background(), key, &u)
+	err := d.getCache(key, &u)
 	if err != nil {
 		return nil, err
 	}
@@ -115,14 +141,10 @@ func (d *Dao) GetUserInCache(id int64) (*model.User, error) {
 
 func (d *Dao) SetUserInCache(user *model.User, ttl time.Duration) error {
 	key := fmt.Sprintf("user:%d", user.ID)
-	err := d.cache.Set(&cache.Item{
-		Ctx:   context.Background(),
-		Key:   key,
-		Value: user,
-		TTL:   ttl,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return d.setCache(key, user, ttl)
+}
+
+func (d *Dao) DeleteUserInCache(id int64) error {
+	key := fmt.Sprintf("user:%d", id)
+	return d.deleteCache(key)
 }

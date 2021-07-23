@@ -24,7 +24,32 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/casbin/policies": {
+        "/api/v1/example/rate-limit": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "用户访问速率限制",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "用户访问速率限制",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/app.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/perm/policies": {
             "get": {
                 "security": [
                     {
@@ -60,7 +85,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.CasbinPolicy"
+                                                "$ref": "#/definitions/model.PermPolicy"
                                             }
                                         }
                                     }
@@ -94,7 +119,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateCasbinPolicyRequest"
+                            "$ref": "#/definitions/service.CreatePermPolicyRequest"
                         }
                     }
                 ],
@@ -128,7 +153,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.DeleteCasbinPolicyRequest"
+                            "$ref": "#/definitions/service.DeletePermPolicyRequest"
                         }
                     }
                 ],
@@ -142,7 +167,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/casbin/policies/reload": {
+        "/api/v1/perm/policies/reload": {
             "get": {
                 "security": [
                     {
@@ -160,31 +185,6 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/example/rate-limit": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "用户访问速率限制",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "用户访问速率限制",
-                "responses": {
-                    "200": {
-                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/app.Result"
                         }
@@ -815,7 +815,7 @@ var doc = `{
                 }
             }
         },
-        "model.CasbinPolicy": {
+        "model.PermPolicy": {
             "type": "object",
             "properties": {
                 "method": {
@@ -879,7 +879,7 @@ var doc = `{
                 }
             }
         },
-        "service.CreateCasbinPolicyRequest": {
+        "service.CreatePermPolicyRequest": {
             "type": "object",
             "required": [
                 "method",
@@ -944,7 +944,7 @@ var doc = `{
                 }
             }
         },
-        "service.DeleteCasbinPolicyRequest": {
+        "service.DeletePermPolicyRequest": {
             "type": "object",
             "required": [
                 "method",

@@ -79,9 +79,19 @@ func (svc *Service) UpdateRole(uriParam *UpdateRoleUriRequest, bodyParam *Update
 
 func (svc *Service) DeleteRole(param *DeleteRoleRequest) error {
 
-	_, err := svc.dao.DeleteRole(param.ID)
+	exists, err := svc.dao.ExistsUserByRoleId(param.ID)
+	if err != nil {
+		return errors.Wrap(err, "dao.ExistsUserByRoleId")
+	}
+
+	if exists {
+		return errcode.HaveRelativeUser
+	}
+
+	_, err = svc.dao.DeleteRole(param.ID)
 	if err != nil {
 		return errors.Wrap(err, "dao.DeleteRole")
 	}
+
 	return nil
 }

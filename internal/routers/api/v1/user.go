@@ -1,13 +1,9 @@
 package v1
 
 import (
-	"common_service/global"
 	"common_service/internal/service"
 	"common_service/pkg/app"
-	"common_service/pkg/errcode"
-	"database/sql"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type User struct{}
@@ -30,23 +26,18 @@ func (u User) Create(c *gin.Context) {
 
 	param := service.CreateUserRequest{}
 	if err := c.ShouldBindJSON(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	svc := service.New(c)
 	newUser, err := svc.CreateUser(&param)
-	switch errors.Cause(err) {
-	case nil:
-		resp.Success(newUser)
-	case errcode.UserAlreadyExists:
-		resp.ToError(errcode.UserAlreadyExists)
-	case errcode.RoleNotExists:
-		resp.ToError(errcode.RoleNotExists)
-	default:
-		global.Logger.Error(errors.Wrap(err, "svc.CreateUser"))
-		resp.ToError(errcode.InternalError)
+	if err != nil {
+		resp.ToError(err)
+		return
 	}
+
+	resp.Success(newUser)
 }
 
 // @Summary 查询单个用户
@@ -62,21 +53,18 @@ func (u User) GetByID(c *gin.Context) {
 
 	param := service.GetUserByIDRequest{}
 	if err := c.ShouldBindUri(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	svc := service.New(c)
 	user, err := svc.GetUserByID(&param)
-	switch errors.Cause(err) {
-	case nil:
-		resp.Success(user)
-	case sql.ErrNoRows:
-		resp.ToError(errcode.UserNotExists)
-	default:
-		global.Logger.Error(errors.Wrap(err, "svc.GetUserByID"))
-		resp.ToError(errcode.InternalError)
+	if err != nil {
+		resp.ToError(err)
+		return
 	}
+
+	resp.Success(user)
 }
 
 // @Summary 查询用户列表
@@ -92,7 +80,7 @@ func (u User) List(c *gin.Context) {
 
 	param := service.ListUserRequest{}
 	if err := c.ShouldBindQuery(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
@@ -103,10 +91,10 @@ func (u User) List(c *gin.Context) {
 	}
 	users, totalCount, err := svc.ListUser(&param, &pager)
 	if err != nil {
-		global.Logger.Error(errors.Wrap(err, "svc.ListUser"))
-		resp.ToError(errcode.InternalError)
+		resp.ToError(err)
 		return
 	}
+
 	resp.SuccessList(users, totalCount)
 }
 
@@ -125,27 +113,24 @@ func (u User) Update(c *gin.Context) {
 
 	uriParam := service.UpdateUserUriRequest{}
 	if err := c.ShouldBindUri(&uriParam); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	bodyParam := service.UpdateUserBodyRequest{}
 	if err := c.ShouldBindJSON(&bodyParam); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	svc := service.New(c)
 	user, err := svc.UpdateUser(&uriParam, &bodyParam)
-	switch errors.Cause(err) {
-	case nil:
-		resp.Success(user)
-	case errcode.RoleNotExists:
-		resp.ToError(errcode.RoleNotExists)
-	default:
-		global.Logger.Error(errors.Wrap(err, "svc.UpdateUser"))
-		resp.ToError(errcode.InternalError)
+	if err != nil {
+		resp.ToError(err)
+		return
 	}
+
+	resp.Success(user)
 }
 
 // @Summary 删除用户
@@ -161,16 +146,16 @@ func (u User) Delete(c *gin.Context) {
 
 	param := service.DeleteUserRequest{}
 	if err := c.ShouldBindUri(&param); err != nil {
-		resp.ToValidationError(err)
+		resp.ToError(err)
 		return
 	}
 
 	svc := service.New(c)
 	err := svc.DeleteUser(&param)
 	if err != nil {
-		global.Logger.Error(errors.Wrap(err, "svc.DeleteUser"))
-		resp.ToError(errcode.InternalError)
+		resp.ToError(err)
 		return
 	}
+
 	resp.Success(nil)
 }
