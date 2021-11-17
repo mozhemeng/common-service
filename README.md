@@ -13,6 +13,7 @@
 - config (viper)
 - log (logrus & lumberjack)
 - command (cobra)
+- rpc server (grpc)
 
 ## needed
 - redis 
