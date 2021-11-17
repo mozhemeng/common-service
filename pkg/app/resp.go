@@ -3,6 +3,7 @@ package app
 import (
 	"common_service/global"
 	"common_service/pkg/errcode"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -70,19 +71,20 @@ func (r *Response) toApiError(err *errcode.ApiError) {
 }
 
 func (r *Response) ToError(err error) {
-	switch err.(type) {
-	case *errcode.ApiError:
-		r.toApiError(err.(*errcode.ApiError))
-	case validator.ValidationErrors:
-		r.toApiError(errcode.InvalidParams.WithValidErrs(err.(validator.ValidationErrors).Translate(global.Trans)))
-	default:
-		global.Logger.Error(err)
-		if global.ServerSetting.RunMode == "debug" {
-			r.toApiError(errcode.InternalError.WithDetails(err.Error()))
-		} else {
-			r.toApiError(errcode.InternalError)
-		}
-
+	var apiError *errcode.ApiError
+	if errors.As(err, &apiError) {
+		r.toApiError(apiError)
+		return
 	}
-
+	var valError validator.ValidationErrors
+	if errors.As(err, &valError) {
+		r.toApiError(errcode.InvalidParams.WithValidErrs(valError.Translate(global.Trans)))
+		return
+	}
+	global.Logger.Error(err)
+	if global.ServerSetting.RunMode == "debug" {
+		r.toApiError(errcode.InternalError.WithDetails(err.Error()))
+	} else {
+		r.toApiError(errcode.InternalError)
+	}
 }
