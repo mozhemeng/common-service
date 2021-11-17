@@ -5,7 +5,6 @@ import (
 	"common_service/pkg/app"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -27,7 +26,7 @@ func (d *Dao) getUser(condition interface{}, args ...interface{}) (*model.User, 
 		Where(condition, args...)
 	err := d.getSql(builder, &one)
 	if err != nil {
-		return nil, errors.Wrap(err, "getSQL")
+		return nil, fmt.Errorf("dao.getSql: %w", err)
 	}
 
 	return &one, nil
@@ -64,7 +63,7 @@ func (d *Dao) ListUser(nickname string, status *uint, roleId int64, page, pageSi
 
 	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSql")
+		return nil, fmt.Errorf("dao.selectSql: %w", err)
 	}
 
 	return many, nil
@@ -90,7 +89,7 @@ func (d *Dao) ListUserId(nickname string, status *uint, roleId int64) ([]int64, 
 
 	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSql")
+		return nil, fmt.Errorf("dao.selectSql: %w", err)
 	}
 
 	return many, nil

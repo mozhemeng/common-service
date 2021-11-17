@@ -4,8 +4,8 @@ import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"database/sql"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/pkg/errors"
 )
 
 func (d *Dao) ExistsRoleById(id int64) (bool, error) {
@@ -22,7 +22,7 @@ func (d *Dao) getRole(condition interface{}, args ...interface{}) (*model.Role, 
 	builder := sq.Select("*").From(RoleTableName).Where(condition, args...)
 	err := d.getSql(builder, &one)
 	if err != nil {
-		return nil, errors.Wrap(err, "getSQL")
+		return nil, fmt.Errorf("dao.getSql: %w", err)
 	}
 
 	return &one, nil
@@ -44,7 +44,7 @@ func (d *Dao) ListRole(name string, page, pageSize int) ([]*model.Role, error) {
 
 	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSql")
+		return nil, fmt.Errorf("dao.selectSql: %w", err)
 	}
 
 	return many, nil

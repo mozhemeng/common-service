@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"common_service/global"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
-	"github.com/pkg/errors"
 	"golang.org/x/text/language"
 )
 
@@ -16,7 +16,7 @@ func Translations() gin.HandlerFunc {
 		var locale string
 		tags, _, err := language.ParseAcceptLanguage(c.GetHeader("Accept-Language"))
 		if err != nil {
-			global.Logger.Error(errors.Wrap(err, "language.ParseAcceptLanguage"))
+			global.Logger.Error(fmt.Errorf("language.ParseAcceptLanguage: %w", err))
 		}
 		localeList := make([]string, len(tags))
 		for k, t := range tags {

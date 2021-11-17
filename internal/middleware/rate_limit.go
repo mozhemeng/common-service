@@ -4,8 +4,8 @@ import (
 	"common_service/global"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/v3/drivers/store/redis"
@@ -59,7 +59,7 @@ func UserRateLimiter(rateFormat string) gin.HandlerFunc {
 }
 
 func errorHandler(c *gin.Context, err error) {
-	global.Logger.Error(errors.Wrap(err, "rate limit"))
+	global.Logger.Error(fmt.Errorf("rate limit: %w", err))
 	resp := app.NewResponse(c)
 	resp.ToError(errcode.RateLimitExceeded)
 }

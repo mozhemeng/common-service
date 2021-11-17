@@ -1,10 +1,10 @@
 package global
 
 import (
+	"fmt"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/pkg/errors"
 )
 
 var Trans ut.Translator
@@ -18,12 +18,12 @@ func SetupUniTrans() error {
 
 	err = UniTrans.Import(ut.FormatJSON, "locales")
 	if err != nil {
-		return errors.Wrap(err, "UniTrans.Import")
+		return fmt.Errorf("UniTrans.Import: %w", err)
 	}
 
 	err = UniTrans.VerifyTranslations()
 	if err != nil {
-		return errors.Wrap(err, "UniTrans.VerifyTranslations")
+		return fmt.Errorf("UniTrans.VerifyTranslations: %w", err)
 	}
 
 	return nil

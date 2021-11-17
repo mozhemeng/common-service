@@ -4,8 +4,8 @@ import (
 	"common_service/global"
 	"common_service/internal/dao"
 	"common_service/pkg/app"
+	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -13,7 +13,7 @@ import (
 func runInitTables() {
 	_, err := sqlx.LoadFile(global.DB, global.AppSetting.InitTablesSqlPath)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "sqlx.LoadFile"))
+		log.Fatal(fmt.Errorf("sqlx.LoadFile: %w", err))
 	}
 	log.Println("init db success")
 }
@@ -26,12 +26,12 @@ func runCreateRootUser() {
 	}
 	passwordHashed, err := app.HashPassword(global.AppSetting.RootPassword)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "app.HashPassword"))
+		log.Fatal(fmt.Errorf("app.HashPassword: %w", err))
 	}
 
 	_, err = d.CreateUser(global.AppSetting.RootUsername, passwordHashed, global.AppSetting.RootUsername, 1, 1)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "dao.CreateUser"))
+		log.Fatal(fmt.Errorf("dao.CreateUser: %w", err))
 	}
 }
 

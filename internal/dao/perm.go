@@ -3,8 +3,8 @@ package dao
 import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/pkg/errors"
 )
 
 func (d *Dao) ListPermPolicy(roleName string, page, pageSize int) ([]*model.PermPolicy, error) {
@@ -23,7 +23,7 @@ func (d *Dao) ListPermPolicy(roleName string, page, pageSize int) ([]*model.Perm
 
 	err := d.selectSql(builder, &many)
 	if err != nil {
-		return nil, errors.Wrap(err, "selectSql")
+		return nil, fmt.Errorf("dao.selectSql: %w", err)
 	}
 
 	return many, nil

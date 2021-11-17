@@ -1,8 +1,8 @@
 package schedule
 
 import (
+	"fmt"
 	"github.com/go-co-op/gocron"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -16,12 +16,12 @@ func SetupTaskScheduler() error {
 	// 添加任务
 	_, err = TaskScheduler.Every(3).Seconds().Do(MyTask)
 	if err != nil {
-		errs = append(errs, errors.Wrap(err, "Do task.MyTask"))
+		errs = append(errs, fmt.Errorf("task.MyTask: %w", err))
 	}
 
 	_, err = TaskScheduler.Every(5).Seconds().Do(MyTaskWithParams, 1, "hello")
 	if err != nil {
-		errs = append(errs, errors.Wrap(err, "Do task.MyTaskWithParams"))
+		errs = append(errs, fmt.Errorf("task.MyTaskWithParams: %w", err))
 	}
 
 	if len(errs) > 0 {

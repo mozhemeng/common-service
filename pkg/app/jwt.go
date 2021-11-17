@@ -2,9 +2,10 @@ package app
 
 import (
 	"common_service/global"
+	"errors"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"strings"
 	"time"
 )
@@ -52,7 +53,7 @@ func VerifyToken(token string, tokenType TokenType) (*Claims, error) {
 		return []byte(global.JWTSetting.Secret), nil
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "jwt.ParseWithClaims")
+		return nil, fmt.Errorf("jwt.ParseWithClaims: %w", err)
 	}
 	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid && claims.Type == tokenType {
 		return claims, nil

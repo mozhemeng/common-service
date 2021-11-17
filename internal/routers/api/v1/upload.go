@@ -5,8 +5,8 @@ import (
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
 	"common_service/pkg/upload"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"strconv"
 )
 
@@ -30,12 +30,12 @@ func (u Upload) UploadFile(c *gin.Context) {
 	resp := app.NewResponse(c)
 	fileHeader, err := c.FormFile("file")
 	if err != nil || fileHeader == nil {
-		resp.ToError(errcode.InvalidParams.WithDetails(errors.Wrap(err, "wrong file").Error()))
+		resp.ToError(errcode.InvalidParams.WithDetails(fmt.Errorf("wrong file: %w", err).Error()))
 		return
 	}
 	fileType, err := strconv.Atoi(c.PostForm("file_type"))
 	if err != nil || fileType <= 0 {
-		resp.ToError(errcode.InvalidParams.WithDetails(errors.Wrap(err, "wrong file type").Error()))
+		resp.ToError(errcode.InvalidParams.WithDetails(fmt.Errorf("wrong file type: %w", err).Error()))
 		return
 	}
 

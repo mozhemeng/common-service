@@ -5,7 +5,7 @@ import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
-	"github.com/pkg/errors"
+	"fmt"
 )
 
 type SignInRequest struct {
@@ -23,7 +23,7 @@ func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 		if dao.IsNoRowFound(err) {
 			return nil, errcode.UserNotExists
 		}
-		return nil, errors.Wrap(err, "svc.dao.GetUserByUsername")
+		return nil, fmt.Errorf("svc.dao.GetUserByUsername: %w", err)
 	}
 
 	if user.Status == model.UserInactive {

@@ -4,8 +4,8 @@ import (
 	"common_service/global"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func CasbinHandler() gin.HandlerFunc {
 
 		pass, err := global.Enforcer.Enforce(sub, obj, act)
 		if err != nil {
-			global.Logger.Error(errors.Wrap(err, "Enforce"))
+			global.Logger.Error(fmt.Errorf("global.Enforcer.Enforce: %w", err))
 			resp.ToError(errcode.PermissionDeny)
 			return
 		}

@@ -4,7 +4,7 @@ import (
 	"common_service/internal/model"
 	"common_service/pkg/app"
 	"common_service/pkg/errcode"
-	"github.com/pkg/errors"
+	"fmt"
 )
 
 type CreateRoleRequest struct {
@@ -31,7 +31,7 @@ type DeleteRoleRequest struct {
 func (svc *Service) CreateRole(param *CreateRoleRequest) (*model.Role, error) {
 	exists, err := svc.dao.ExistsRoleByName(param.Name)
 	if err != nil {
-		return nil, errors.Wrap(err, "dao.ExistsRoleByName")
+		return nil, fmt.Errorf("svc.dao.ExistsRoleByName: %w", err)
 	}
 	if exists {
 		return nil, errcode.RoleAlreadyExists
@@ -39,12 +39,12 @@ func (svc *Service) CreateRole(param *CreateRoleRequest) (*model.Role, error) {
 
 	newID, err := svc.dao.CreateRole(param.Name, param.Description)
 	if err != nil {
-		return nil, errors.Wrap(err, "dao.CreateRole")
+		return nil, fmt.Errorf("svc.dao.CreateRole: %w", err)
 	}
 
 	r, err := svc.dao.GetRoleById(newID)
 	if err != nil {
-		return nil, errors.Wrap(err, "dao.GetRoleById")
+		return nil, fmt.Errorf("svc.dao.GetRoleById: %w", err)
 	}
 
 	return r, nil
@@ -53,11 +53,11 @@ func (svc *Service) CreateRole(param *CreateRoleRequest) (*model.Role, error) {
 func (svc *Service) ListRole(param *ListRoleRequest, pager *app.Pager) ([]*model.Role, int, error) {
 	roles, err := svc.dao.ListRole(param.Name, pager.Page, pager.PageSize)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "dao.ListRole")
+		return nil, 0, fmt.Errorf("svc.dao.ListRole: %w", err)
 	}
 	count, err := svc.dao.CountRole(param.Name)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "dao.CountRole")
+		return nil, 0, fmt.Errorf("svc.dao.CountRole: %w", err)
 	}
 
 	return roles, count, nil
@@ -66,12 +66,12 @@ func (svc *Service) ListRole(param *ListRoleRequest, pager *app.Pager) ([]*model
 func (svc *Service) UpdateRole(uriParam *UpdateRoleUriRequest, bodyParam *UpdateRoleBodyRequest) (*model.Role, error) {
 	_, err := svc.dao.UpdateRole(uriParam.ID, bodyParam.Description)
 	if err != nil {
-		return nil, errors.Wrap(err, "dao.UpdateRole")
+		return nil, fmt.Errorf("svc.dao.UpdateRole: %w", err)
 	}
 
 	r, err := svc.dao.GetRoleById(uriParam.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "dao.GetRoleById")
+		return nil, fmt.Errorf("svc.dao.GetRoleById: %w", err)
 	}
 
 	return r, nil
@@ -81,7 +81,7 @@ func (svc *Service) DeleteRole(param *DeleteRoleRequest) error {
 
 	exists, err := svc.dao.ExistsUserByRoleId(param.ID)
 	if err != nil {
-		return errors.Wrap(err, "dao.ExistsUserByRoleId")
+		return fmt.Errorf("svc.dao.ExistsUserByRoleId: %w", err)
 	}
 
 	if exists {
@@ -90,7 +90,7 @@ func (svc *Service) DeleteRole(param *DeleteRoleRequest) error {
 
 	_, err = svc.dao.DeleteRole(param.ID)
 	if err != nil {
-		return errors.Wrap(err, "dao.DeleteRole")
+		return fmt.Errorf("svc.dao.DeleteRole: %w", err)
 	}
 
 	return nil
