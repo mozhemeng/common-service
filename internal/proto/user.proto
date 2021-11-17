@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package proto;
+
+import "internal/proto/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./internal/proto";
+
+service UserService {
+    rpc GetUserList (GetUserListRequest) returns (GetUserListReply) {}
+}
+
+message GetUserListRequest {
+    string nickname = 1;
+    optional uint32 state = 2;
+    int64 role_id = 3;
+    int64 page = 4;
+    int64 page_size = 5;
+}
+
+message User {
+    int64 id = 1;
+    string username = 2;
+    string nickname = 3;
+    uint32 state = 4;
+    int64 role_id = 5;
+    string role_name = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+}
+
+message GetUserListReply {
+    repeated User data = 1;
+    Pager pager = 2;
+}

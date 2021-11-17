@@ -39,6 +39,7 @@ func init() {
 	RootCmd.AddCommand(serverCmd)
 	RootCmd.AddCommand(schedulerCmd)
 	RootCmd.AddCommand(prepareCmd)
+	RootCmd.AddCommand(rpcCmd)
 }
 
 var RootCmd = &cobra.Command{

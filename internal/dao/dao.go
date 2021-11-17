@@ -113,10 +113,10 @@ func (d *Dao) txExecSql(builders []sq.Sqlizer) ([]sql.Result, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "db.Begin")
 	}
+	defer tx.Rollback()
 	for _, builder := range builders {
 		res, err := d.txExec(tx, builder)
 		if err != nil {
-			_ = tx.Rollback()
 			return nil, err
 		}
 		resList = append(resList, res)
@@ -124,7 +124,6 @@ func (d *Dao) txExecSql(builders []sq.Sqlizer) ([]sql.Result, error) {
 
 	err = tx.Commit()
 	if err != nil {
-		_ = tx.Rollback()
 		return nil, errors.Wrap(err, "tx.Commit")
 	}
 	return resList, nil

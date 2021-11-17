@@ -26,7 +26,7 @@ func (svc *Service) CheckAuth(param *SignInRequest) (*model.User, error) {
 		return nil, errors.Wrap(err, "svc.dao.GetUserByUsername")
 	}
 
-	if user.Status == 2 {
+	if user.Status == model.UserInactive {
 		return nil, errcode.UserNotActive
 	}
 
