@@ -1,13 +1,13 @@
 package global
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
 )
 
-var Logger *logrus.Logger
+var Logger zerolog.Logger
 
 func SetupLogger() error {
 	logFileName := AppSetting.LogSavePath + "/" + AppSetting.LogFileName + AppSetting.LogFileExt
@@ -18,12 +18,12 @@ func SetupLogger() error {
 	}
 	multiOut := io.MultiWriter(os.Stdout, lumber)
 
-	Logger = logrus.New()
-	Logger.SetOutput(multiOut)
+	Logger = zerolog.New(multiOut).With().Timestamp().Logger()
+
 	if ServerSetting.RunMode == "debug" {
-		Logger.SetLevel(logrus.DebugLevel)
+		Logger = Logger.Level(zerolog.DebugLevel)
 	} else {
-		Logger.SetLevel(logrus.InfoLevel)
+		Logger = Logger.Level(zerolog.InfoLevel)
 	}
 
 	return nil

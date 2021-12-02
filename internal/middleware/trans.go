@@ -16,7 +16,7 @@ func Translations() gin.HandlerFunc {
 		var locale string
 		tags, _, err := language.ParseAcceptLanguage(c.GetHeader("Accept-Language"))
 		if err != nil {
-			global.Logger.Error(fmt.Errorf("language.ParseAcceptLanguage: %w", err))
+			global.Logger.Err(fmt.Errorf("language.ParseAcceptLanguage: %w", err)).Send()
 		}
 		localeList := make([]string, len(tags))
 		for k, t := range tags {

@@ -59,7 +59,7 @@ func UserRateLimiter(rateFormat string) gin.HandlerFunc {
 }
 
 func errorHandler(c *gin.Context, err error) {
-	global.Logger.Error(fmt.Errorf("rate limit: %w", err))
+	global.Logger.Err(fmt.Errorf("rate limit: %w", err)).Send()
 	resp := app.NewResponse(c)
 	resp.ToError(errcode.RateLimitExceeded)
 }

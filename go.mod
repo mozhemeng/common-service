@@ -22,7 +22,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.1
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/sirupsen/logrus v1.8.1
+	github.com/rs/zerolog v1.26.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
@@ -31,10 +31,7 @@ require (
 	github.com/ugorji/go v1.2.4 // indirect
 	github.com/ulule/limiter/v3 v3.8.0
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	golang.org/x/text v0.3.6
-	golang.org/x/tools v0.1.4 // indirect
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0

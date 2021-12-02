@@ -10,7 +10,6 @@ import (
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -40,11 +39,11 @@ func IsNoRowFound(err error) bool {
 }
 
 func logSql(s time.Time, query string, args []interface{}) {
-	global.Logger.WithFields(logrus.Fields{
-		"sql":      query,
-		"args":     args,
-		"duration": time.Now().Sub(s),
-	}).Debug("sql log")
+	global.Logger.Debug().
+		Str("sql", query).
+		Fields(map[string]interface{}{"args": args}).
+		Str("duration", fmt.Sprintf("%6v", time.Now().Sub(s))).
+		Msg("sql")
 }
 
 func (d *Dao) selectSql(builder sq.Sqlizer, dest interface{}) error {

@@ -5,8 +5,6 @@ import (
 	"common_service/global"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
-	"strings"
 	"time"
 )
 
@@ -25,8 +23,8 @@ func (w AccessLogWriter) Write(p []byte) (int, error) {
 func AccessLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 替换自带response writer
-		bodyWriter := &AccessLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
-		c.Writer = bodyWriter
+		//bodyWriter := &AccessLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		//c.Writer = bodyWriter
 		// 开始时间
 		startTime := time.Now()
 
@@ -52,22 +50,21 @@ func AccessLogger() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 响应体（非application/json；swagger接口；等忽略显示响应体）
-		var respBody = "omitted"
-		if !strings.HasPrefix(reqUri, "/swagger") {
-			respContentType, ok := bodyWriter.Header()["Content-Type"]
-			if ok && len(respContentType) > 0 && strings.HasPrefix(respContentType[0], "application/json") {
-				respBody = bodyWriter.body.String()
-			}
-		}
+		//var respBody = "omitted"
+		//if !strings.HasPrefix(reqUri, "/swagger") {
+		//	respContentType, ok := bodyWriter.Header()["Content-Type"]
+		//	if ok && len(respContentType) > 0 && strings.HasPrefix(respContentType[0], "application/json") {
+		//		respBody = bodyWriter.body.String()
+		//	}
+		//}
 
 		//日志格式
-		global.Logger.WithFields(logrus.Fields{
-			"http_status": statusCode,
-			"total_time":  latencyTime,
-			"ip":          clientIP,
-			"method":      reqMethod,
-			"uri":         reqUri,
-			"response":    respBody,
-		}).Info("access")
+		global.Logger.Info().
+			Int("http_status", statusCode).
+			Str("total_time", latencyTime).
+			Str("ip", clientIP).
+			Str("method", reqMethod).
+			Str("uri", reqUri).
+			Msg("access")
 	}
 }

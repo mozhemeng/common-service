@@ -11,7 +11,7 @@
 - swagger api docs (swag)
 - rate limit (limiter)
 - config (viper)
-- log (logrus & lumberjack)
+- log (zerolog & lumberjack)
 - command (cobra)
 - rpc server (grpc)
 

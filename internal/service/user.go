@@ -49,7 +49,7 @@ func (svc *Service) GetUserByID(param *GetUserByIDRequest) (*model.User, error) 
 		return u, nil
 	}
 	if err != cache.ErrCacheMiss {
-		global.Logger.Error(fmt.Errorf("svc.dao.GetUserInCache: %w", err))
+		global.Logger.Err(fmt.Errorf("svc.dao.GetUserInCache: %w", err)).Send()
 	}
 
 	u, err = svc.dao.GetUserById(param.ID)
@@ -62,7 +62,7 @@ func (svc *Service) GetUserByID(param *GetUserByIDRequest) (*model.User, error) 
 
 	err = svc.dao.SetUserInCache(u, 0)
 	if err != nil {
-		global.Logger.Error(fmt.Errorf("svc.dao.SetUserInCache: %w", err))
+		global.Logger.Err(fmt.Errorf("svc.dao.SetUserInCache: %w", err)).Send()
 	}
 
 	return u, nil
@@ -101,7 +101,7 @@ func (svc *Service) CreateUser(param *CreateUserRequest) (*model.User, error) {
 
 	err = svc.dao.SetUserInCache(u, 0)
 	if err != nil {
-		global.Logger.Error(fmt.Errorf("svc.dao.SetUserInCache: %w", err))
+		global.Logger.Err(fmt.Errorf("svc.dao.SetUserInCache: %w", err)).Send()
 	}
 
 	return u, nil
@@ -141,7 +141,7 @@ func (svc *Service) UpdateUser(uriParam *UpdateUserUriRequest, bodyParam *Update
 
 	err = svc.dao.SetUserInCache(u, 0)
 	if err != nil {
-		global.Logger.Error(fmt.Errorf("svc.dao.SetUserInCache: %w", err))
+		global.Logger.Err(fmt.Errorf("svc.dao.SetUserInCache: %w", err)).Send()
 	}
 
 	return u, nil
@@ -154,7 +154,7 @@ func (svc *Service) DeleteUser(param *DeleteUserRequest) error {
 	}
 	err = svc.dao.DeleteUserInCache(param.ID)
 	if err != nil {
-		global.Logger.Error(fmt.Errorf("svc.dao.DeleteUserInCache: %w", err))
+		global.Logger.Err(fmt.Errorf("svc.dao.DeleteUserInCache: %w", err)).Send()
 	}
 	return nil
 }

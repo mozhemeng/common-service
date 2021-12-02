@@ -9,7 +9,7 @@ import (
 func TransT(key interface{}, params ...string) string {
 	s, err := global.Trans.T(key, params...)
 	if err != nil {
-		global.Logger.Error(fmt.Errorf("global.Trans.T '%s': %w", key, err))
+		global.Logger.Err(fmt.Errorf("global.Trans.T '%s': %w", key, err)).Send()
 		switch key.(type) {
 		case int:
 			s = strconv.Itoa(key.(int))

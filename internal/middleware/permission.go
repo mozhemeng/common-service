@@ -6,7 +6,6 @@ import (
 	"common_service/pkg/errcode"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func CasbinHandler() gin.HandlerFunc {
@@ -18,15 +17,15 @@ func CasbinHandler() gin.HandlerFunc {
 		claims := c.MustGet("claims").(*app.Claims)
 		sub := claims.RoleName
 
-		global.Logger.WithFields(logrus.Fields{
-			"sub": sub,
-			"obj": obj,
-			"act": act,
-		}).Debug("perm policy")
+		global.Logger.Debug().
+			Str("sub", sub).
+			Str("obj", obj).
+			Str("act", act).
+			Msg("perm policy")
 
 		pass, err := global.Enforcer.Enforce(sub, obj, act)
 		if err != nil {
-			global.Logger.Error(fmt.Errorf("global.Enforcer.Enforce: %w", err))
+			global.Logger.Err(fmt.Errorf("global.Enforcer.Enforce: %w", err)).Send()
 			resp.ToError(errcode.PermissionDeny)
 			return
 		}

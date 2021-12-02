@@ -81,7 +81,7 @@ func (r *Response) ToError(err error) {
 		r.toApiError(errcode.InvalidParams.WithValidErrs(valError.Translate(global.Trans)))
 		return
 	}
-	global.Logger.Error(err)
+	global.Logger.Err(err).Send()
 	if global.ServerSetting.RunMode == "debug" {
 		r.toApiError(errcode.InternalError.WithDetails(err.Error()))
 	} else {

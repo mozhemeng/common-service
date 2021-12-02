@@ -14,7 +14,8 @@ func Recovery() gin.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				stack := getStack()
-				global.Logger.Error(fmt.Sprintf("panic recover: %v; ==> %s\n", err, string(stack)))
+				global.Logger.Error().
+					Msg(fmt.Sprintf("panic recover: %v; ==> %s\n", err, string(stack)))
 				resp := app.NewResponse(c)
 				resp.ToError(errcode.InternalError)
 			}
