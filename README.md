@@ -3,7 +3,7 @@
 ## Include
 - api (gin)
 - authorization (jwt-go)
-- assess control (casbin)
+- access control (casbin)
 - sql (squirrel & sqlx)
 - no sql & cache (go-redis)
 - i18n (universal-translator)
