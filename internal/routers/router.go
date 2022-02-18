@@ -4,6 +4,7 @@ import (
 	"common_service/global"
 	"common_service/internal/middleware"
 	v1 "common_service/internal/routers/api/v1"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -21,6 +22,8 @@ func NewRouter() *gin.Engine {
 	url := ginSwagger.URL("./swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	r.StaticFS(global.AppSetting.UploadServerUrl, http.Dir(global.AppSetting.UploadSavePath))
+
+	pprof.Register(r)
 
 	auth := v1.NewAuth()
 	user := v1.NewUser()
