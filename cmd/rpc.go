@@ -10,11 +10,13 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"runtime"
 )
 
 func runRpcServer() {
 
 	// pprof
+	runtime.SetBlockProfileRate(1)
 	go func() {
 		_ = http.ListenAndServe(":8089", nil)
 	}()
