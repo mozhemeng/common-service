@@ -8,9 +8,17 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 func runRpcServer() {
+
+	// pprof
+	go func() {
+		_ = http.ListenAndServe(":8089", nil)
+	}()
+
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, rpc.NewUserServer())
 	reflection.Register(s)
